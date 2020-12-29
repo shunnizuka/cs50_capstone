@@ -1,0 +1,72 @@
+{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">{{ profileUser.username }}</h3>
+        <p class="card-text">
+          Looking for these games:
+          <button
+            class="arrowBtn"
+            type="button"
+            data-toggle="collapse"
+            data-target="#collapseExample"
+            aria-expanded="false"
+            aria-controls="collapseExample"
+            style="outline: none"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              class="bi bi-arrow-down-square-fill"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5a.5.5 0 0 1 1 0z"
+              />
+            </svg>
+          </button>
+        </p>
+        <div class="collapse" id="collapseExample">
+          <div>
+            <ul>
+              <li>{{profileUser.requestTitle1}}</li>
+              <li>{{profileUser.requestTitle2}}</li>
+              <li>{{profileUser.requestTitle3}}</li>
+            </ul>
+          </div>
+        </div>
+        <p class="card-text"><u>Meet Up Area:</u> {{ profileUser.meetupArea}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if user == profileUser %}
+<div style="padding: 20px 0px">
+  <a class="blueBtnLink" style="color: white" href="{% url 'addGame' user.id %}">Add Game</a>
+</div>
+{% endif %}
+
+<div>
+  <div class="row row-col-1 row-cols-lg-6 row-cols-md-4 row-cols-sm-3">
+    {% for game in games %}
+    <div class="col mb-4">
+      <div class="card h-100">
+        <img src="{{ game.imageLink }}"" class="card-img-top" height=200>
+        <div class="typeLabel">
+            <p class="card-text"><span class="labelSpan">{{ game.category.name }}</span></p>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ game.title }}</h5>
+          <a class="blueBtnLink" style="color: white; float:right;" href="{% url 'addGame' user.id %}">Swap!</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock%}

@@ -1,0 +1,47 @@
+.arrowBtn {
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-color: transparent;
+    height: 24px;
+    width: 24px;
+    color: #05386b;
+    user-select: none;
+}
+
+.blueBtnLink {
+    background-color: #05386b;
+    border-color: #05386b;
+    border-radius: 8px;
+    height: 40px;
+    width: fit-content;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-width: thin;
+}
+
+.blueBtn {
+    background-color:#05386b;
+    border-color: #05386b;
+    color: white;
+    border-radius: 8px;
+    height: 40px;
+    width: 70px;
+}
+
+.typeLabel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0;
+}
+
+.labelSpan {
+    background-color: palevioletred;
+    padding: 5px 10px;
+    color: black;
+    font-weight: 700;
+    
+}

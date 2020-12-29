@@ -3,16 +3,16 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.shortcuts import HttpResponse, HttpResponseRedirect, render
+from django.shortcuts import HttpResponse, HttpResponseRedirect, render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User
+from .models import User, Game, Swap, Category, Rating
 
 # Create your views here.
 
 def index(request):
-    return HttpResponse("Hello!")
+    return render(request, "SwapNGameOn/layout.html")
 
 def login_view(request):
     if request.method == "POST":
@@ -60,3 +60,40 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "SwapNGameOn/register.html")
+
+def profile(request, user):
+
+    profileUser = User.objects.get(pk=user)
+    games = Game.objects.filter(user=profileUser)
+
+    return render(request, "SwapNGameOn/profile.html", {
+        "profileUser" : profileUser,
+        "games" : games
+    })
+
+def addGame(request, user):
+
+    if request.method == "POST":
+
+        gameOwner = User.objects.get(pk=user)
+        
+        if request.user != gameOwner:
+            return JsonResponse({"error": "You do not have permission"}, status=400)
+
+        title = request.POST["title"]
+        imageLink = request.POST["image"]
+        categoryName = request.POST["category"]
+        category = Category.objects.get(name=categoryName)
+
+        game = Game(user=gameOwner, title=title, category=category, imageLink=imageLink)
+        game.save()
+
+        return HttpResponseRedirect(reverse('profile', kwargs={'user': user}))
+    
+    else:
+
+        categories = Category.objects.all()
+
+        return render(request, "SwapNGameOn/addGame.html", {
+            "categories" : categories
+        })

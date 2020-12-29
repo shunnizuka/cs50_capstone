@@ -1,0 +1,37 @@
+{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <h5 class="card-header">Add New Game</h5>
+      <div class="card-body">
+        <form action="{% url 'addGame' user.id %}" method="post">
+        {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="title">Title</label>
+              <input type="text" class="form-control" name="title" required/>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="type">Type</label>
+              <select name="category" class="form-control">
+                {% for category in categories %}
+                <option>{{category.name}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-10">
+              <label for="image">Image Url</label>
+              <input type="text" class="form-control" name="image" required/>
+            </div>
+          </div>
+          <button type="submit" class="blueBtn">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock%}

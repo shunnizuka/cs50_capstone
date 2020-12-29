@@ -11,6 +11,9 @@ class User(AbstractUser):
 class Game(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="games_listed")
     title = models.CharField(max_length=255)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, null=True, related_name="game_category")
+    imageLink = models.CharField(max_length=255, null=True)
+    isAvailable = models.BooleanField(default=True)
 
 class Swap(models.Model):
     game = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="swap_game")
@@ -18,6 +21,7 @@ class Swap(models.Model):
     endDate = models.DateField()
     hasRequestedGame = models.BooleanField(default=False)
     meetup = models.BooleanField(default=False)
+    isCompleted = models.BooleanField(default=False)
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
