@@ -32,6 +32,10 @@ def login_view(request):
             })
     else:
         return render(request, "SwapNGameOn/login.html")
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("login"))
     
 def register(request):
     if request.method == "POST":
@@ -97,3 +101,47 @@ def addGame(request, user):
         return render(request, "SwapNGameOn/addGame.html", {
             "categories" : categories
         })
+
+def editProfile(request, user):
+
+    if request.method == "POST":
+
+        profileUser = User.objects.get(pk=user)
+
+        username = request.POST["username"]
+        requestTitle1 = request.POST["requestTitle1"]
+        requestTitle2 = request.POST["requestTitle2"]
+        requestTitle3 = request.POST["requestTitle3"]
+        meetupArea = request.POST["meetupArea"]
+
+        profileUser.username = username
+        profileUser.requestTitle1 = requestTitle1
+        profileUser.requestTitle2 = requestTitle2
+        profileUser.requestTitle3 = requestTitle3
+        profileUser.meetupArea = meetupArea
+        profileUser.save()
+
+        return HttpResponseRedirect(reverse('profile', kwargs={'user': user}))
+    
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+@csrf_exempt
+def deleteGame(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        gameId = data.get("gameId", "")
+        gameToDelete = Game.objects.get(pk=gameId)
+
+        if gameToDelete.user != request.user:
+            return JsonResponse({"error": "You do not have permission."}, status=400)
+        print(gameToDelete)
+        gameToDelete.delete()
+        
+        return JsonResponse({"message": "Game deleted successfully"}, status=201)
+    
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)

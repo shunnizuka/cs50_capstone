@@ -1,8 +1,29 @@
 {% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
-<div class="row">
+<div class="row" style="padding-bottom: 10px">
   <div class="col-md-12">
     <div class="card">
       <div class="card-body">
+        {% if user == profileUser %}
+        <button
+          type="button"
+          class="blueBtn"
+          style="float: right"
+          data-toggle="modal"
+          data-target="#editProfileModal"
+        >
+          Edit
+        </button>
+        {% else %}
+        <button
+          type="button"
+          class="blueBtn"
+          style="float: right"
+          data-toggle="modal"
+          data-target="#rateProfileModal"
+        >
+          Rate
+        </button>
+        {% endif %}
         <h3 class="card-title">{{ profileUser.username }}</h3>
         <p class="card-text">
           Looking for these games:
@@ -53,15 +74,24 @@
 <div>
   <div class="row row-col-1 row-cols-lg-6 row-cols-md-4 row-cols-sm-3">
     {% for game in games %}
-    <div class="col mb-4">
+    <div class="col mb-4" id="game-{{game.id}}">
       <div class="card h-100">
         <img src="{{ game.imageLink }}"" class="card-img-top" height=200>
         <div class="typeLabel">
-            <p class="card-text"><span class="labelSpan">{{ game.category.name }}</span></p>
+          <p class="card-text"><span class="labelSpan">{{ game.category.name }}</span></p>
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ game.title }}</h5>
-          <a class="blueBtnLink" style="color: white; float:right;" href="{% url 'addGame' user.id %}">Swap!</a>
+          {% if user == profileUser %}
+          <button type="button" class="redBtn" value="{{game.id}}">Delete</button>
+          {% else %}
+          <a
+            class="blueBtnLink"
+            style="color: white; float: right"
+            href="{% url 'addGame' user.id %}"
+            >Swap!</a
+          >
+          {% endif %}
         </div>
       </div>
     </div>
@@ -69,4 +99,81 @@
   </div>
 </div>
 
+<!-- Edit profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Edit Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{% url 'editProfile' user.id %}" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="username">Username</label>
+              <input type="text" class="form-control" name="username" value="{{user.username}}" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="title1">Request Title 1</label>
+              <input
+                type="text"
+                class="form-control"
+                name="requestTitle1"
+                value="{{profileUser.requestTitle1}}"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="title2">Request Title 2</label>
+              <input
+                type="text"
+                class="form-control"
+                name="requestTitle2"
+                value="{{profileUser.requestTitle2}}"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="title3">Request Title 3</label>
+              <input
+                type="text"
+                class="form-control"
+                name="requestTitle3"
+                value="{{profileUser.requestTitle3}}"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="meetupArea">Meetup Area</label>
+              <input
+                type="text"
+                class="form-control"
+                name="meetupArea"
+                value="{{profileUser.meetupArea}}"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="blueBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock%}
+
+{% block script %}
+    <script src="{% static 'SwapNGameOn/profile.js' %}"></script>
+{% endblock %}
