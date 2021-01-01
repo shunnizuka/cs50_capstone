@@ -11,5 +11,6 @@ urlpatterns = [
     
     # post request paths
     path("editProfile/<int:user>", views.editProfile, name="editProfile"),
-    path("deleteGame", views.deleteGame, name="deleteGame")
+    path("deleteGame", views.deleteGame, name="deleteGame"),
+    path("addRating", views.addRating, name="addRating")
 ]

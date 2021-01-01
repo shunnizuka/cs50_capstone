@@ -19,9 +19,17 @@ class Swap(models.Model):
     game = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="swap_game")
     startDate = models.DateField()
     endDate = models.DateField()
-    hasRequestedGame = models.BooleanField(default=False)
-    meetup = models.BooleanField(default=False)
     isCompleted = models.BooleanField(default=False)
+    request = models.ForeignKey("Request", on_delete=models.CASCADE,null=True, related_name="swap_request")
+
+class Request(models.Model):
+    requester = models.ForeignKey("User", on_delete=models.CASCADE, related_name="request_user")
+    hasRequestedGame = models.BooleanField(default=False)
+    offeredGame = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="request_game")
+    meetup = models.BooleanField(default=False)
+    altMeetup = models.CharField(max_length=255)
+    isAccepted = models.BooleanField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class Category(models.Model):
     name = models.CharField(max_length=255)

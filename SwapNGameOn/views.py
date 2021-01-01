@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Avg
 
 from .models import User, Game, Swap, Category, Rating
 
@@ -69,10 +70,14 @@ def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
     games = Game.objects.filter(user=profileUser)
+    ratingList = Rating.objects.filter(user=profileUser)
+    rating = ratingList.aggregate(Avg('rating'))['rating__avg']
 
     return render(request, "SwapNGameOn/profile.html", {
         "profileUser" : profileUser,
-        "games" : games
+        "games" : games,
+        "rating" : rating if rating == None else round(rating, 2),
+        "ratingNum" : ratingList.count
     })
 
 def addGame(request, user):
@@ -138,10 +143,29 @@ def deleteGame(request):
 
         if gameToDelete.user != request.user:
             return JsonResponse({"error": "You do not have permission."}, status=400)
-        print(gameToDelete)
+        
         gameToDelete.delete()
         
         return JsonResponse({"message": "Game deleted successfully"}, status=201)
     
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+
+@csrf_exempt
+def addRating(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        ratingScore = data.get("rating","")
+        userId = data.get("user", "")
+        user = User.objects.get(pk=userId)
+
+        rating = Rating(user=user, rating=ratingScore)
+        rating.save()
+
+        return JsonResponse({"message": "Rating added successfully"}, status=201)
     else:
         return JsonResponse({"error": "POST request required."}, status=400)
