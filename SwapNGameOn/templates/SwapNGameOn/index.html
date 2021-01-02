@@ -1,0 +1,70 @@
+{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+
+<div class="searchBarContainer">
+  <form action="{% url 'index' %}" method="post">
+    {% csrf_token %}
+    <div class="form-row align-items-center">
+      <div class="col-6">
+        <input type="text" class="form-control" id="inlineFormInputName" placeholder="Search" name="searchFilter" />
+      </div>
+      <div class="col-3">
+        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="categoryFilter">
+            {% if selected == "all" %}
+          <option selected value="all">All</option>
+          {% else %}
+          <option value="all">All</option>
+          {% endif %}
+          {% for category in categories %}
+          {% if selected == category.name %}
+          <option selected value="{{category.name}}">{{category.name}}</option>
+          {% else %}
+          <option value="{{category.name}}">{{category.name}}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <button type="submit" class="blueBtn">Filter</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="row row-col-1 row-cols-md-4 row-cols-sm-1">
+  {% for game in games %}
+  <div class="col mb-3">
+    <div class="card h-100" style="min-width: 300px">
+      <div class="row no-gutters">
+        <div class="col-5">
+          <img src="{{game.imageLink}}" class="card-img" height="300" />
+          <div class="typeLabel">
+            <p class="card-text"><span class="labelSpan">{{ game.category.name }}</span></p>
+          </div>
+        </div>
+        <div class="col-7">
+          <div class="card-body">
+            <h5 class="card-title">{{ game.title }}</h5>
+            <p class="card-text">
+              <small class="text-muted"
+                >Owned by :
+                <a href="{% url 'profile' game.user.id %}">{{game.user.username}}</a></small
+              >
+            </p>
+            {% if not game.user.requestTitle1 and not game.user.requestTitle2 and not game.user.requestTitle3%}
+            <p class="card-text"><b>Looking for:</b> No games listed</p>
+            {% else %}
+            <p class="card-text">
+              <b>Looking for:</b> {{game.user.requestTitle1}}, {{game.user.requestTitle2}} and
+              {{game.user.requestTitle3}}
+            </p>
+            {% endif %}
+            <p class="card-text"><b>Meetup:</b> {{game.user.meetupArea}}</p>
+            <a class="blueBtnLink" style="color: white; float: right">Swap!</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock%}

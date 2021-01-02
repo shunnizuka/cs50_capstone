@@ -1,4 +1,6 @@
-{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+{% extends "SwapNGameOn/layout.html" %} 
+{% load static %}
+{% block body %}
 <div class="row" style="padding-bottom: 10px">
   <div class="col-md-12">
     <div class="card">
@@ -83,7 +85,7 @@
 
 <!--Games panel-->
 <div>
-  <div class="row row-col-1 row-cols-lg-6 row-cols-md-4 row-cols-sm-3">
+  <div class="row row-col-1 row-cols-lg-6 row-cols-md-4 row-cols-2">
     {% for game in games %}
     <div class="col mb-4" id="game-{{game.id}}">
       <div class="card h-100">
@@ -126,7 +128,7 @@
           <div class="form-row">
             <div class="form-group col-md-12">
               <label for="username">Username</label>
-              <input type="text" class="form-control" name="username" value="{{user.username}}" />
+              <input type="text" class="form-control" name="username" value="{{user.username}}" required />
             </div>
           </div>
           <div class="form-row">
@@ -137,6 +139,7 @@
                 class="form-control"
                 name="requestTitle1"
                 value="{{profileUser.requestTitle1}}"
+                required
               />
             </div>
           </div>
@@ -148,6 +151,7 @@
                 class="form-control"
                 name="requestTitle2"
                 value="{{profileUser.requestTitle2}}"
+                required
               />
             </div>
           </div>
@@ -159,6 +163,7 @@
                 class="form-control"
                 name="requestTitle3"
                 value="{{profileUser.requestTitle3}}"
+                required
               />
             </div>
           </div>
@@ -170,6 +175,7 @@
                 class="form-control"
                 name="meetupArea"
                 value="{{profileUser.meetupArea}}"
+                required
               />
             </div>
           </div>
@@ -325,6 +331,8 @@
   </div>
 </div>
 
-{% endblock%} {% block script %}
+{% endblock%} 
+
+{% block script %}
 <script src="{% static 'SwapNGameOn/profile.js' %}"></script>
 {% endblock %}

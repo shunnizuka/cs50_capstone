@@ -12,12 +12,55 @@ from .models import User, Game, Swap, Category, Rating
 
 # Create your views here.
 
+
 def index(request):
-    return render(request, "SwapNGameOn/layout.html")
+
+    if request.method == "POST":
+
+        categoryFilter = request.POST["categoryFilter"]
+        searchFilter = request.POST["searchFilter"]
+
+        if(searchFilter):
+            if(categoryFilter != "all"):
+                category = Category.objects.filter(
+                    name=categoryFilter).order_by('title')
+                games = Game.objects.filter(category__in=category).filter(
+                    title__contains=searchFilter).filter(isAvailable=True).order_by('title')
+            else:
+                games = Game.objects.filter(
+                    title__contains=searchFilter).filter(isAvailable=True).order_by('title')
+        else:
+            if(categoryFilter != "all"):
+                category = Category.objects.filter(
+                    name=categoryFilter)
+                print(category)
+                games = Game.objects.filter(
+                    isAvailable=True, category__in=category).order_by('title')
+            else:
+                games = Game.objects.filter(isAvailable=True).order_by('title')
+
+        categories = Category.objects.all()
+        return render(request, "SwapNGameOn/index.html", {
+            "games": games,
+            "categories": categories,
+            "selected": categoryFilter
+        })
+
+    else:
+
+        games = Game.objects.filter(isAvailable=True).order_by('title')
+        categories = Category.objects.all()
+
+        return render(request, "SwapNGameOn/index.html", {
+            "games": games,
+            "categories": categories,
+            "selected" : "all"
+        })
+
 
 def login_view(request):
     if request.method == "POST":
-    
+
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -34,10 +77,12 @@ def login_view(request):
     else:
         return render(request, "SwapNGameOn/login.html")
 
+
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
-    
+
+
 def register(request):
     if request.method == "POST":
 
@@ -66,6 +111,7 @@ def register(request):
     else:
         return render(request, "SwapNGameOn/register.html")
 
+
 def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
@@ -74,18 +120,19 @@ def profile(request, user):
     rating = ratingList.aggregate(Avg('rating'))['rating__avg']
 
     return render(request, "SwapNGameOn/profile.html", {
-        "profileUser" : profileUser,
-        "games" : games,
-        "rating" : rating if rating == None else round(rating, 2),
-        "ratingNum" : ratingList.count
+        "profileUser": profileUser,
+        "games": games,
+        "rating": rating if rating == None else round(rating, 2),
+        "ratingNum": ratingList.count
     })
+
 
 def addGame(request, user):
 
     if request.method == "POST":
 
         gameOwner = User.objects.get(pk=user)
-        
+
         if request.user != gameOwner:
             return JsonResponse({"error": "You do not have permission"}, status=400)
 
@@ -94,18 +141,20 @@ def addGame(request, user):
         categoryName = request.POST["category"]
         category = Category.objects.get(name=categoryName)
 
-        game = Game(user=gameOwner, title=title, category=category, imageLink=imageLink)
+        game = Game(user=gameOwner, title=title,
+                    category=category, imageLink=imageLink)
         game.save()
 
         return HttpResponseRedirect(reverse('profile', kwargs={'user': user}))
-    
+
     else:
 
         categories = Category.objects.all()
 
         return render(request, "SwapNGameOn/addGame.html", {
-            "categories" : categories
+            "categories": categories
         })
+
 
 def editProfile(request, user):
 
@@ -127,9 +176,10 @@ def editProfile(request, user):
         profileUser.save()
 
         return HttpResponseRedirect(reverse('profile', kwargs={'user': user}))
-    
+
     else:
         return JsonResponse({"error": "POST request required."}, status=400)
+
 
 @csrf_exempt
 def deleteGame(request):
@@ -143,11 +193,11 @@ def deleteGame(request):
 
         if gameToDelete.user != request.user:
             return JsonResponse({"error": "You do not have permission."}, status=400)
-        
+
         gameToDelete.delete()
-        
+
         return JsonResponse({"message": "Game deleted successfully"}, status=201)
-    
+
     else:
         return JsonResponse({"error": "POST request required."}, status=400)
 
@@ -159,7 +209,7 @@ def addRating(request):
 
         data = json.loads(request.body)
 
-        ratingScore = data.get("rating","")
+        ratingScore = data.get("rating", "")
         userId = data.get("user", "")
         user = User.objects.get(pk=userId)
 
