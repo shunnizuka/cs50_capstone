@@ -89,7 +89,7 @@
     {% for game in games %}
     <div class="col mb-4" id="game-{{game.id}}">
       <div class="card h-100">
-        <img src="{{ game.imageLink }}"" class="card-img-top" height=200>
+        <img src="{{ game.imageLink }}"" class="card-img-top" height=200 style="object-fit:contain;">
         <div class="typeLabel">
           <p class="card-text"><span class="labelSpan">{{ game.category.name }}</span></p>
         </div>

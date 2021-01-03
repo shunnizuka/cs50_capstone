@@ -1,0 +1,119 @@
+{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %} 
+
+{% if message %}
+<div class="alert alert-danger" role="alert">{{ message }}</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <h5 class="card-header">Swap Request for {{game.title}}</h5>
+      <div class="card-body">
+        <div class="row no-gutters">
+          <div class="col-4">
+            <img
+              src="{{game.imageLink}}"
+              class="card-img"
+              style="object-fit: contain; max-height: 300px"
+            />
+          </div>
+          <div class="col-7" style="padding-left: 8px">
+            <h5 class="card-title">{{ game.title }} ({{game.category.name}})</h5>
+            <p class="card-text">
+              <small class="text-muted"
+                >Owned by :
+                <a href="{% url 'profile' game.user.id %}">{{game.user.username}}</a></small
+              >
+            </p>
+            {% if not game.user.requestTitle1 and not game.user.requestTitle2 and not game.user.requestTitle3%}
+            <p class="card-text"><b>Looking for:</b> No games listed</p>
+            {% else %}
+            <p class="card-text">
+              <b>Looking for:</b> {{game.user.requestTitle1}}, {{game.user.requestTitle2}} and
+              {{game.user.requestTitle3}}
+            </p>
+            {% endif %}
+            <p class="card-text"><b>Meetup:</b> {{game.user.meetupArea}}</p>
+          </div>
+        </div>
+        <form action="{% url 'newRequest' game.id%}" method="post">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label for="offers">Game offer</label>
+              <select name="offers" class="form-control">
+                {% for offeredGame in offers %}
+                <option value="{{offeredGame.id}}">{{offeredGame.title}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label for="meetupArea">Able to meet up at {{game.user.meetupArea}}?</label>
+              <div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="customRadioInline1"
+                    name="meetup"
+                    class="custom-control-input"
+                    value="True"
+                    required
+                  />
+                  <label class="custom-control-label" for="customRadioInline1">yes</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="customRadioInline2"
+                    name="meetup"
+                    class="custom-control-input"
+                    value="False"
+                  />
+                  <label class="custom-control-label" for="customRadioInline2">no</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-8">
+              <label for="meetupArea">If no is selected for above:</label>
+              <input
+                type="text"
+                class="form-control"
+                name="altMeetup"
+                id="altMeetupField"
+                placeholder="Suggest alternative meetup place"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label for="duration">Swap Duration:</label>
+              <div class="form-group row">
+                <label for="starting date" class="col-3 col-form-label">Start:</label>
+                <div class="col-9">
+                  <input type="date" class="form-control" name="startDate" required />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="starting date" class="col-3 col-form-label">End:</label>
+                <div class="col-9">
+                  <input type="date" class="form-control" name="endDate" required />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label for="contactInfo">Contact Number:</label>
+              <input type="text" class="form-control" name="contactNumber" maxlength=8 required />
+            </div>
+          </div>
+          <button type="submit" class="blueBtn">Swap!</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock%}

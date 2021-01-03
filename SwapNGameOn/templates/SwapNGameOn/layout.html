@@ -57,6 +57,12 @@
       </div>
     </nav>
 
-    <div class="body" style="padding: 15px">{% block body %} {% endblock %}</div>
+    <div class="container" style="max-width:1400px; padding-top:15px">
+      <div class="row justify-content-md-center">
+        <div class="col-md-12">
+          {% block body %} {% endblock %}
+        </div>
+      </div>
+    </div>
   </body>
 </html>

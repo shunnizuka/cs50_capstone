@@ -28,8 +28,9 @@ class Request(models.Model):
     offeredGame = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="request_game")
     meetup = models.BooleanField(default=False)
     altMeetup = models.CharField(max_length=255)
-    isAccepted = models.BooleanField()
+    status = models.CharField(max_length=255, default="processing")
     timestamp = models.DateTimeField(auto_now_add=True)
+    contactNumber = models.IntegerField(null=True)
 
 class Category(models.Model):
     name = models.CharField(max_length=255)

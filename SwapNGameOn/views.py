@@ -1,4 +1,5 @@
 import json
+import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -8,7 +9,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Avg
 
-from .models import User, Game, Swap, Category, Rating
+from .models import User, Game, Swap, Category, Rating, Request
 
 # Create your views here.
 
@@ -24,20 +25,21 @@ def index(request):
             if(categoryFilter != "all"):
                 category = Category.objects.filter(
                     name=categoryFilter).order_by('title')
-                games = Game.objects.filter(category__in=category).filter(
+                games = Game.objects.exclude(user=request.user).filter(category__in=category).filter(
                     title__contains=searchFilter).filter(isAvailable=True).order_by('title')
             else:
-                games = Game.objects.filter(
+                games = Game.objects.exclude(user=request.user).filter(
                     title__contains=searchFilter).filter(isAvailable=True).order_by('title')
         else:
             if(categoryFilter != "all"):
                 category = Category.objects.filter(
                     name=categoryFilter)
                 print(category)
-                games = Game.objects.filter(
+                games = Game.objects.exclude(user=request.user).filter(
                     isAvailable=True, category__in=category).order_by('title')
             else:
-                games = Game.objects.filter(isAvailable=True).order_by('title')
+                games = Game.objects.exclude(user=request.user).filter(
+                    isAvailable=True).order_by('title')
 
         categories = Category.objects.all()
         return render(request, "SwapNGameOn/index.html", {
@@ -48,13 +50,14 @@ def index(request):
 
     else:
 
-        games = Game.objects.filter(isAvailable=True).order_by('title')
+        games = Game.objects.exclude(user=request.user).filter(
+            isAvailable=True).order_by('title')
         categories = Category.objects.all()
 
         return render(request, "SwapNGameOn/index.html", {
             "games": games,
             "categories": categories,
-            "selected" : "all"
+            "selected": "all"
         })
 
 
@@ -219,3 +222,65 @@ def addRating(request):
         return JsonResponse({"message": "Rating added successfully"}, status=201)
     else:
         return JsonResponse({"error": "POST request required."}, status=400)
+
+
+def makeRequest(request, gameId):
+
+    game = Game.objects.get(pk=gameId)
+    offers = Game.objects.filter(user=request.user)
+
+    if request.method == "POST":
+
+        offeredGameId = request.POST['offers']
+        offeredGame = Game.objects.get(pk=offeredGameId)
+        meetUpValue = request.POST['meetup']
+        altMeetup = request.POST['altMeetup']
+        startDate = request.POST['startDate']
+        startDateObj = datetime.datetime.strptime(startDate, '%Y-%m-%d')
+        endDate = request.POST['endDate']
+        endDateObj = datetime.datetime.strptime(endDate, '%Y-%m-%d')
+        contactNumber = request.POST['contactNumber']
+
+        # form validation
+        if meetUpValue == 'False' and altMeetup == '':
+            return render(request, "SwapNGameOn/requestForm.html", {
+                "game": game,
+                "offers": offers,
+                "message": "Please suggest an alternative meetup place"
+            })
+
+        if startDateObj < datetime.datetime.now() or endDateObj < datetime.datetime.now():
+            return render(request, "SwapNGameOn/requestForm.html", {
+                "game": game,
+                "offers": offers,
+                "message": "Please select a future date for start/end date"
+            })
+
+        if endDateObj <= startDateObj:
+            return render(request, "SwapNGameOn/requestForm.html", {
+                "game": game,
+                "offers": offers,
+                "message": "End date must be later than start date"
+            })
+
+        gameToSwap = Game.objects.get(pk=gameId)
+
+        hasRequestedGame = False
+        if (offeredGame.title == gameToSwap.user.requestTitle1 or offeredGame.title == gameToSwap.user.requestTitle2 or offeredGame.title == gameToSwap.user.requestTitle3):
+            hasRequestedGame = True
+
+        newRequest = Request(requester=request.user, hasRequestedGame=hasRequestedGame,
+                             offeredGame=offeredGame, meetup=meetUpValue, altMeetup=altMeetup, contactNumber=contactNumber)
+        newRequest.save()
+
+        newSwap = Swap(game=gameToSwap, startDate=startDate,
+                       endDate=endDate, request=newRequest)
+        newSwap.save()
+
+        return HttpResponseRedirect(reverse('index'))
+
+    else:
+        return render(request, "SwapNGameOn/requestForm.html", {
+            "game": game,
+            "offers": offers
+        })
