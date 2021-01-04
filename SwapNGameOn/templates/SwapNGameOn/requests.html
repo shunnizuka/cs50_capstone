@@ -1,0 +1,141 @@
+{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+
+<ul class="nav nav-pills nav-fill">
+  <li class="nav-item">
+    <button class="innerNavActive" id="receivedTab">Received</button>
+  </li>
+  <li class="nav-item">
+    <button class="innerNav" id="sentTab" >Sent</button>
+  </li>
+</ul>
+
+<!--Received requests panel-->
+<div class="row justify-content-center" style="padding: 15px" id="received">
+  {% for swapRequest in requestsReceived %}
+  <div class="card mb-3" style="width: 100%" id="request-{{swapRequest.request.id}}">
+    <div class="card-header"><h6>Request for {{swapRequest.game.title}}</h6></div>
+    <div class="row no-gutters">
+      <div class="col-4">
+        <img
+          src="{{swapRequest.game.imageLink}}"
+          class="card-img"
+          height="200"
+          style="object-fit: contain"
+        />
+      </div>
+      <div class="col-8">
+        <div class="card-body" style="padding: 10px">
+          <h5 class="card-title"></h5>
+          <p class="card-text"><u>Game Offered:</u> {{swapRequest.request.offeredGame.title}}
+            {% if swapRequest.request.hasRequestedGame %}
+            <span class="labelSpan">Requested Game!</span>
+            {% endif %}</p>
+          <p class="card-text">
+            <u>Requested Duration:</u> {{swapRequest.startDate}} to {{swapRequest.endDate}}
+          </p>
+          {% if swapRequest.request.meetup %}
+          <p class="card-text"><u>Meetup:</u> Able to meetup at {{user.meetupArea}}</p>
+          {% else %}
+          <p class="card-text">
+            <u>Meetup:</u> Unable to meetup at {{user.meetupArea}}
+            <b>Alternative: {{swapRequest.request.altMeetup}}</b>
+          </p>
+          {% endif %}
+          <p class="card-text">
+            <small class="text-muted"
+              >Requested by
+              <a href="{% url 'profile' swapRequest.request.requester.id %}"
+                >{{swapRequest.request.requester.username}}</a
+              > on {{swapRequest.request.timestamp}}</small
+            >
+          </p>
+          <button type="button" class="redBtn" value="{{swapRequest.request.id}}" onclick="declineRequest(this)">Decline</button>
+          <button type="button" class="blueBtn" value="{{swapRequest.request.id}}" onclick="acceptRequest(this)">Accept</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!--Sent requests panel-->
+<div class="row justify-content-center" style="padding: 15px; display:none;" id="sent">
+  {% for swapRequest in requestSent %}
+  <div class="card mb-3" id="sent-request-{{swapRequest.request.id}}">
+    <div class="card-header"><h6>Requested {{swapRequest.game.title}}</h6></div>
+    <div class="row no-gutters">
+      <div class="col-4">
+        <img
+          src="{{swapRequest.game.imageLink}}"
+          class="card-img"
+          height="200"
+          style="object-fit: contain"
+        />
+        <div class="typeLabel">
+          {% if swapRequest.request.status == "processing" %}
+          <p class="card-text"><span class="labelSpan">Processing</span></p>
+          {% else %}
+          <p class="card-text"><span class="declinedSpan">Declined</span></p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-8">
+        <div class="card-body" style="padding: 10px">
+          <h5 class="card-title"></h5>
+          <p class="card-text"><u>Game Offered:</u> {{swapRequest.request.offeredGame.title}}</p>
+          <p class="card-text">
+            <u>Requested Duration:</u> {{swapRequest.startDate}} to {{swapRequest.endDate}}
+          </p>
+          {% if swapRequest.request.meetup %}
+          <p class="card-text"><u>Meetup:</u> Able to meetup at {{user.meetupArea}}</p>
+          {% else %}
+          <p class="card-text">
+            <u>Meetup:</u> Unable to meetup at {{user.meetupArea}}
+            <b>Alternative: {{swapRequest.request.altMeetup}}</b>
+          </p>
+          {% endif %}
+          <p class="card-text">
+            <small class="text-muted"
+              >Owned by
+              <a href="{% url 'profile' swapRequest.request.requester.id %}"
+                >{{swapRequest.game.user.username}}</a
+              ></small
+            >
+          </p>
+          {% if swapRequest.request.status == "processing" %}
+          <button type="button" class="redBtn" value="{{swapRequest.request.id}}" onclick="cancelRequest(this)">Cancel</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Request accepted alert modal -->
+<div class="modal fade" id="requestAccepted" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeAcceptModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please use the following contact number to arrange meetup with the other person.</p>
+        <p id="contactNumber"></p>
+        <p>You can view the details of this request in your <a href="{% url 'requests' user.id %}">Swaps</a> page.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeAcceptModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock%}
+
+{% block script %}
+<script src="{% static 'SwapNGameOn/requests.js' %}"></script>
+{% endblock %}

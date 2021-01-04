@@ -130,6 +130,22 @@ def profile(request, user):
     })
 
 
+def requests(request, user):
+
+    requestsSent = Request.objects.filter(requester=request.user)
+    swapRequestsSent = Swap.objects.filter(
+        request__in=requestsSent).order_by("startDate")
+
+    userGame = Game.objects.filter(user=request.user)
+    requestsReceived = Swap.objects.filter(
+        game__in=userGame, request__status="processing").order_by("startDate")
+
+    return render(request, "SwapNGameOn/requests.html", {
+        "requestSent": swapRequestsSent,
+        "requestsReceived": requestsReceived
+    })
+
+
 def addGame(request, user):
 
     if request.method == "POST":
@@ -284,3 +300,66 @@ def makeRequest(request, gameId):
             "game": game,
             "offers": offers
         })
+
+
+@csrf_exempt
+def declineRequest(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        requestId = data.get("requestId", "")
+        request = Request.objects.get(pk=requestId)
+
+        request.status = "declined"
+        request.save()
+
+        return JsonResponse({"message": "Request has been declined"}, status=201)
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+
+@csrf_exempt
+def acceptRequest(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        requestId = data.get("requestId", "")
+        request = Request.objects.get(pk=requestId)
+        swap = Swap.objects.get(request=request)
+
+        request.status = "accepted"
+        if request.offeredGame.isAvailable == False or swap.game.isAvailable == False:
+            request.delete()
+            return JsonResponse({"error": "The game is not available anymore"}, status=400)
+
+        request.offeredGame.isAvailable = False
+        request.save()
+        request.offeredGame.save()
+        
+        swap.game.isAvailable = False
+        swap.game.save()
+
+        return JsonResponse({"message": "Request has been Accepted", "contactNumber": request.contactNumber, "requester": request.requester.username}, status=201)
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+
+@csrf_exempt
+def cancelRequest(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        requestId = data.get("requestId", "")
+        request = Request.objects.get(pk=requestId)
+
+        request.delete()
+
+        return JsonResponse({"message": "Request has been cancelled"}, status=201)
+    else:
+        return JsonResponse({"error": "POST request required."}, status=400)

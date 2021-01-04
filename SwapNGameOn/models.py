@@ -12,7 +12,7 @@ class Game(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="games_listed")
     title = models.CharField(max_length=255)
     category = models.ForeignKey("Category", on_delete=models.CASCADE, null=True, related_name="game_category")
-    imageLink = models.CharField(max_length=255, null=True)
+    imageLink = models.TextField(null=True)
     isAvailable = models.BooleanField(default=True)
 
 class Swap(models.Model):
@@ -27,8 +27,8 @@ class Request(models.Model):
     hasRequestedGame = models.BooleanField(default=False)
     offeredGame = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="request_game")
     meetup = models.BooleanField(default=False)
-    altMeetup = models.CharField(max_length=255)
-    status = models.CharField(max_length=255, default="processing")
+    altMeetup = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=255, default="processing") #processing, declined, accepted
     timestamp = models.DateTimeField(auto_now_add=True)
     contactNumber = models.IntegerField(null=True)
 

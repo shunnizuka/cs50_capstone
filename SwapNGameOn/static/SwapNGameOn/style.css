@@ -43,7 +43,6 @@
     color: white;
     border-radius: 8px;
     height: 40px;
-    float: right;
 }
 
 .typeLabel {
@@ -61,6 +60,15 @@
     padding: 5px 10px;
     color: black;
     font-weight: 700;
+    white-space: nowrap;
+}
+
+.declinedSpan {
+    background-color: red;
+    padding: 5px 10px;
+    color: white;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .rating-form-div {
@@ -102,4 +110,27 @@
 .rating-form input.checked ~ span label {
     background:#F90;
     color:#FFF;
+}
+
+.innerNavActive {
+    background-color: #05386b;
+    color: white;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: #05386b;
+    display: block;
+    border-width: thin;
+    padding: 5px 0px;
+    width:100%;
+}
+
+.innerNav {
+    color: #05386b;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: thin;
+    border-color: #05386b;
+    display: block;
+    padding: 5px 0px;
+    width:100%;
 }
