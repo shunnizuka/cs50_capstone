@@ -141,7 +141,7 @@ def requests(request, user):
 
     requestsSent = Request.objects.filter(requester=request.user)
     swapRequestsSent = Swap.objects.filter(
-        request__in=requestsSent).order_by("startDate")
+        request__in=requestsSent, isCompleted=False).order_by("startDate")
 
     userGame = Game.objects.filter(user=request.user)
     requestsReceived = Swap.objects.filter(

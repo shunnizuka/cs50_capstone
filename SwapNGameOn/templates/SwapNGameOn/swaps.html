@@ -1,33 +1,30 @@
-{% extends "SwapNGameOn/layout.html" %} {% load static %} {% block body %}
+{% extends "SwapNGameOn/layout.html" %} 
+{% load static %} 
+{% block body %}
 
 <div class="row justify-content-center" style="padding: 15px" id="received">
     {% for swapRequest in swaps %}
     <div class="card mb-3" style="width: 100%" id="swap-{{swapRequest.id}}">
       <div class="row no-gutters">
         <div class="col-4">
-          {% if swap.requester == user%}
           <img
             src="{{swapRequest.game.imageLink}}"
             class="card-img"
             height="200"
             style="object-fit: contain"
           />
-          {% else %}
-          <img
-            src="{{swapRequest.request.offeredGame.imageLink}}"
-            class="card-img"
-            height="200"
-            style="object-fit: contain"
-          />
-          {% endif %}
         </div>
         <div class="col-8">
           <div class="card-body" style="padding: 10px">
             <h5 class="card-title"></h5>
             <p class="card-text"><b>Games Swapped:</b> </p>
             <ul>
-                <li>{{swapRequest.game.user.username}} : {{swapRequest.game.title}}</li>
-                <li>{{swapRequest.request.requester.username}} : {{swapRequest.request.offeredGame.title}}</li>
+                <li><a href="{% url 'profile' swapRequest.game.user.id %}"
+                    >{{swapRequest.game.user.username}}</a
+                  > : {{swapRequest.game.title}}</li>
+                <li><a href="{% url 'profile' swapRequest.request.requester.id %}"
+                    >{{swapRequest.request.requester.username}}</a
+                  > : {{swapRequest.request.offeredGame.title}}</li>
             </ul>
             <p class="card-text">
               <u>Requested Duration:</u> {{swapRequest.startDate}} to {{swapRequest.endDate}}
