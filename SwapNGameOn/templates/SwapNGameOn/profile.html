@@ -95,7 +95,9 @@
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ game.title }}</h5>
-          {% if user == profileUser %}
+          {% if not game.isAvailable %}
+          <button type="button" class="btn btn-secondary" disabled>On Swap</button>
+          {% elif user == profileUser %}
           <button type="button" class="redBtn" value="{{game.id}}">Delete</button>
           {% else %}
           <a

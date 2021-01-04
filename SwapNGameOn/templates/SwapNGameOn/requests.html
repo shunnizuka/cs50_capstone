@@ -74,6 +74,8 @@
         <div class="typeLabel">
           {% if swapRequest.request.status == "processing" %}
           <p class="card-text"><span class="labelSpan">Processing</span></p>
+          {% elif swapRequest.request.status == "accepted" %}
+          <p class="card-text"><span class="acceptedSpan">Accepted</span></p>
           {% else %}
           <p class="card-text"><span class="declinedSpan">Declined</span></p>
           {% endif %}

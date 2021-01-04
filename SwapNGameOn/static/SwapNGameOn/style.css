@@ -71,6 +71,14 @@
     white-space: nowrap;
 }
 
+.acceptedSpan {
+    background-color: green;
+    padding: 5px 10px;
+    color: white;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .rating-form-div {
     height: 100px;
     display: flex;

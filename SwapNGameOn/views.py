@@ -118,7 +118,7 @@ def register(request):
 def profile(request, user):
 
     profileUser = User.objects.get(pk=user)
-    games = Game.objects.filter(user=profileUser)
+    games = Game.objects.filter(user=profileUser).order_by("-isAvailable")
     ratingList = Rating.objects.filter(user=profileUser)
     rating = ratingList.aggregate(Avg('rating'))['rating__avg']
 
@@ -243,7 +243,7 @@ def addRating(request):
 def makeRequest(request, gameId):
 
     game = Game.objects.get(pk=gameId)
-    offers = Game.objects.filter(user=request.user)
+    offers = Game.objects.filter(user=request.user, isAvailable=True)
 
     if request.method == "POST":
 
