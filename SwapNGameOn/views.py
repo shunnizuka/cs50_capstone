@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Avg
+from django.db.models import Avg, Q
 
 from .models import User, Game, Swap, Category, Rating, Request
 
@@ -16,6 +16,9 @@ from .models import User, Game, Swap, Category, Rating, Request
 
 def index(request):
 
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     if request.method == "POST":
 
         categoryFilter = request.POST["categoryFilter"]
@@ -23,10 +26,8 @@ def index(request):
 
         if(searchFilter):
             if(categoryFilter != "all"):
-                category = Category.objects.filter(
-                    name=categoryFilter).order_by('title')
-                games = Game.objects.exclude(user=request.user).filter(category__in=category).filter(
-                    title__contains=searchFilter).filter(isAvailable=True).order_by('title')
+                category = Category.objects.filter(name=categoryFilter)
+                games = Game.objects.exclude(user=request.user).filter(title__contains=searchFilter, isAvailable=True, category__in=category).order_by('title')
             else:
                 games = Game.objects.exclude(user=request.user).filter(
                     title__contains=searchFilter).filter(isAvailable=True).order_by('title')
@@ -117,6 +118,9 @@ def register(request):
 
 def profile(request, user):
 
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     profileUser = User.objects.get(pk=user)
     games = Game.objects.filter(user=profileUser).order_by("-isAvailable")
     ratingList = Rating.objects.filter(user=profileUser)
@@ -132,6 +136,9 @@ def profile(request, user):
 
 def requests(request, user):
 
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     requestsSent = Request.objects.filter(requester=request.user)
     swapRequestsSent = Swap.objects.filter(
         request__in=requestsSent).order_by("startDate")
@@ -146,7 +153,42 @@ def requests(request, user):
     })
 
 
+@csrf_exempt
+def swaps(request):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+
+        swapId = data.get("swapId", "")
+        swap = Swap.objects.get(pk=swapId)
+
+        swap.isCompleted = True
+        swap.game.isAvailable = True
+        swap.request.offeredGame.isAvailable = True
+        swap.game.save()
+        swap.request.offeredGame.save()
+        swap.save()
+
+        return JsonResponse({"message": "Swap has been marked as completed"}, status=201)
+
+    else:
+
+        swapRequests = Swap.objects.filter(Q(request__requester=request.user) | Q(
+            game__user=request.user)).filter(request__status="accepted", isCompleted=False).order_by("endDate")
+
+        return render(request, "SwapNGameOn/swaps.html", {
+            "swaps": swapRequests
+        })
+
+
 def addGame(request, user):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
 
     if request.method == "POST":
 
@@ -242,6 +284,9 @@ def addRating(request):
 
 def makeRequest(request, gameId):
 
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     game = Game.objects.get(pk=gameId)
     offers = Game.objects.filter(user=request.user, isAvailable=True)
 
@@ -293,7 +338,7 @@ def makeRequest(request, gameId):
                        endDate=endDate, request=newRequest)
         newSwap.save()
 
-        return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('requests', kwargs={'user': request.user.id}))
 
     else:
         return render(request, "SwapNGameOn/requestForm.html", {
@@ -339,7 +384,7 @@ def acceptRequest(request):
         request.offeredGame.isAvailable = False
         request.save()
         request.offeredGame.save()
-        
+
         swap.game.isAvailable = False
         swap.game.save()
 

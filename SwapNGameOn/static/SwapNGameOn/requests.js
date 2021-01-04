@@ -92,17 +92,35 @@ function closeAcceptModal() {
 }
 
 function cancelRequest(target) {
+  var requestId = target.value;
 
-    var requestId = target.value;
-    
-    fetch('/cancelRequest', {
-        method: 'POST',
-        body: JSON.stringify({
-            requestId: requestId
-        })
-    }).then(response => response.json()).then(result =>{
-        console.log(result);
-        var requestDiv = document.querySelector(`#sent-request-${requestId}`);
-        requestDiv.remove();
+  fetch('/cancelRequest', {
+    method: 'POST',
+    body: JSON.stringify({
+      requestId: requestId
     })
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log(result);
+      var requestDiv = document.querySelector(`#sent-request-${requestId}`);
+      requestDiv.remove();
+    });
+}
+
+function completeSwap(target) {
+  var swapId = target.value;
+
+  fetch('/swaps', {
+    method: 'POST',
+    body: JSON.stringify({
+      swapId: swapId
+    })
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log(result);
+      var swapDiv = document.querySelector(`#swap-${swapId}`);
+      swapDiv.remove();
+    });
 }

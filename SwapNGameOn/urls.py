@@ -8,6 +8,7 @@ urlpatterns = [
     path("logOut", views.logout_view, name="logOut"),
     path("profile/<int:user>", views.profile, name="profile"),
     path("requests/<int:user>", views.requests, name="requests"),
+    path("swaps", views.swaps, name="swaps"),
     path("addGame/<int:user>", views.addGame, name="addGame"),
     path("newRequest/<int:gameId>", views.makeRequest, name="newRequest"),
     
