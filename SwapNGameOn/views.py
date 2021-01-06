@@ -35,7 +35,6 @@ def index(request):
             if(categoryFilter != "all"):
                 category = Category.objects.filter(
                     name=categoryFilter)
-                print(category)
                 games = Game.objects.exclude(user=request.user).filter(
                     isAvailable=True, category__in=category).order_by('title')
             else:
@@ -94,8 +93,6 @@ def register(request):
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
-        print(password)
-        print(confirmation)
         if password != confirmation:
             return render(request, "SwapNGameOn/register.html", {
                 "message": "Passwords must match."
